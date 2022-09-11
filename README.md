@@ -15,8 +15,15 @@ You can set the webhook URL and default channel in the code, or
 specifiy via environment variable MM_WEBHOOKURL (or pass to 
 command via -w option).
 
-Messages can be read from STDIN with -r.  Check help for more
-info.
+```
+
+var url = "https://example.com/hook/webhookid"
+var default_channel = "town-square"
+
+```
+
+Messages can be read from STDIN with -r.  Check -h for all options.
+
 
 
 
