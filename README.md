@@ -1,9 +1,12 @@
 # gomatter
 
-Command line Utility to send notification/massages via Mattermost webhooks.
+Command line Utility to send notifications/messages via Mattermost webhooks.
 
 ```
 $ gomatter -m "hello, world!" -c world
+
+$ echo "hello world" | ./gomatter -v -c "@someuser" -w https://example.com/hook/secretid 
+
 ```
 
 Send text to channel "world".  Default channel is "town-square".

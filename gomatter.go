@@ -28,7 +28,7 @@ var default_channel = "town-square"
 
 // Map for known icon urls for easy reference (add your own)
 var icon_urls = map[string]string{
-	"mattermost":     "https://mattermost.com/wp-content/uploads/2022/02/icon.png",
+	"mattermost": "https://mattermost.com/wp-content/uploads/2022/02/icon.png",
 }
 
 // Read from stdin
@@ -105,7 +105,7 @@ func main() {
 	}
 	body, _ := ioutil.ReadAll(res.Body)
 	if verbose {
-   		fmt.Println("response Body:", string(body))
- 	}
+		fmt.Println("response Body:", string(body))
+	}
 
 }
