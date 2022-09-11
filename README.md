@@ -24,6 +24,13 @@ var default_channel = "town-square"
 
 Messages can be read from STDIN with -r.  Check -h for all options.
 
+You can change the map icon variable in the code, to predefine icon urls
+to simplify sending. Then you specify it with a keyword via the -k option:
+
+```
+$ gomatter -m test -k homeassistant
+```
+
 
 
 
