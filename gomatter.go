@@ -25,6 +25,7 @@ type Payload struct {
 // Globals, change or control via env or parameters
 var url = ""
 var default_channel = "town-square"
+var ver = "v1.1"
 
 // Map for known icon urls for easy reference (add your own)
 var icon_urls = map[string]string{
@@ -43,15 +44,19 @@ func readStdin() string {
 	}
 	return s
 }
+func readFromFile(f, t *string) error {
+
+	r, err := os.ReadFile(*f)
+	if err != nil {
+		return err
+	}
+	*t = string(r)
+	return  nil
+}
 
 func main() {
+	var stdin, verbose bool
 
-	verbose := false
-	stdin := false
-
-	if v, exists := os.LookupEnv("MM_WEBHOOK"); exists {
-		url = v
-	}
 	if v, exists := os.LookupEnv("MM_DEFAULT_CHANNEL"); exists {
 		default_channel = v
 	}
@@ -60,16 +65,18 @@ func main() {
 	}
 
 	flag.Usage = func() {
+		fmt.Printf("Gomatter %s (https://github.com/ktpx/gomatter)\n", ver)
 		fmt.Println("Usage: gomatter -c channel -m message [-n username] [-r] .. ")
 		flag.PrintDefaults() // prints default usage
 	}
 	flag.StringVar(&p.Channel, "c", default_channel, "Specify a channel.")
 	flag.StringVar(&p.Text, "m", "", "Specify text message.")
-	flag.StringVar(&p.Emoji, "e", "", "Specify an icon_emoji-")
+	flag.StringVar(&p.Emoji, "e", "", "Specify an icon_emoji.")
 	flag.StringVar(&p.Url, "i", "", "Specify an icon url.")
 	flag.StringVar(&p.User, "u", "", "Specify a Username.")
 	flag.StringVar(&p.Attach, "a", "", "Specify attachments.")
 	flag.StringVar(&url, "w", "", "Specify webhook url.")
+	var fname = flag.String("f", "", "Read text from a file.")
 	flag.BoolVar(&stdin, "r", false, "Read from stdin (presedence over -m)")
 	flag.BoolVar(&verbose, "v", false, "Be move verbose.")
 	appicon := flag.String("k", "", "Specify predefined app icon (if defined)")
@@ -78,7 +85,12 @@ func main() {
 	if stdin {
 		p.Text = readStdin()
 	}
-
+	if len(*fname) > 0 {
+		err := readFromFile(fname, &p.Text)
+		if err != nil {
+			log.Fatalf("Error reading from file '%s'", *fname)
+		}
+	}
 	if len(p.Text) == 0 {
 		flag.Usage()
 		os.Exit(1)
@@ -86,9 +98,14 @@ func main() {
 	if *appicon != "" {
 		p.Url, _ = icon_urls[*appicon]
 	}
-	if url == "" {
-		log.Fatal("No URL has been set.")
+	if len(url) == 0 {
+		if v, exists := os.LookupEnv("MM_WEBHOOKURL") ; exists {
+			url = v
+		} else {
+			log.Fatal("No URL has been set.")
+		}		
 	}
+
 	json, err := json.Marshal(p)
 	if err != nil {
 		log.Fatal(err)
@@ -107,5 +124,4 @@ func main() {
 	if verbose {
 		fmt.Println("response Body:", string(body))
 	}
-
 }
