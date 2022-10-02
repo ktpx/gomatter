@@ -24,7 +24,7 @@ type Payload struct {
 
 // Globals, change or control via env or parameters
 var url = ""
-var default_channel = "town-square"
+var default_channel = ""
 var ver = "v1.1"
 
 // Map for known icon urls for easy reference (add your own)
@@ -51,18 +51,13 @@ func readFromFile(f, t *string) error {
 		return err
 	}
 	*t = string(r)
-	return  nil
+	return nil
 }
 
 func main() {
 	var stdin, verbose bool
 
-	if v, exists := os.LookupEnv("MM_DEFAULT_CHANNEL"); exists {
-		default_channel = v
-	}
-	p := Payload{
-		Channel: default_channel,
-	}
+	p := Payload{}
 
 	flag.Usage = func() {
 		fmt.Printf("Gomatter %s (https://github.com/ktpx/gomatter)\n", ver)
@@ -98,12 +93,19 @@ func main() {
 	if *appicon != "" {
 		p.Url, _ = icon_urls[*appicon]
 	}
+	if len(p.Channel) == 0 {
+		if v, exists := os.LookupEnv("MM_DEFAULT_CHANNEL"); exists {
+			p.Channel = v
+		} else {
+			log.Fatal("No channel has been specified or set.")
+		}
+	}
 	if len(url) == 0 {
-		if v, exists := os.LookupEnv("MM_WEBHOOKURL") ; exists {
+		if v, exists := os.LookupEnv("MM_WEBHOOKURL"); exists {
 			url = v
 		} else {
 			log.Fatal("No URL has been set.")
-		}		
+		}
 	}
 
 	json, err := json.Marshal(p)
@@ -117,6 +119,7 @@ func main() {
 
 	defer res.Body.Close()
 	if verbose {
+		fmt.Println("params: %v\n", p)
 		fmt.Println("response Status:", res.Status)
 		fmt.Println("response Headers:", res.Header)
 	}
